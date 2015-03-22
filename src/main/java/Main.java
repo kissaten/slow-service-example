@@ -26,6 +26,8 @@ public class Main extends HttpServlet {
           }});
     executor.execute(future);
 
+    resp.addHeader("Transfer-Encoding", "chunked");
+
     while (!future.isDone()) {
       try {
         Thread.sleep(10000);
@@ -33,6 +35,7 @@ public class Main extends HttpServlet {
         e.printStackTrace();
       }
       resp.getWriter().print("X");
+      resp.getWriter().flush();
     }
 
     try {
