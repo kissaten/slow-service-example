@@ -1,15 +1,13 @@
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.*;
-import java.sql.*;
-import java.util.concurrent.*;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
-import org.apache.commons.dbcp2.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.concurrent.*;
 
 public class Main extends HttpServlet {
 
@@ -29,11 +27,7 @@ public class Main extends HttpServlet {
     resp.addHeader("Transfer-Encoding", "chunked");
 
     while (!future.isDone()) {
-      try {
-        Thread.sleep(10000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+      try { Thread.sleep(10000); } catch (InterruptedException e) {}
       resp.getWriter().print("X");
       resp.getWriter().flush();
     }
@@ -48,11 +42,7 @@ public class Main extends HttpServlet {
   }
 
   protected String serviceThatIsSlow() {
-    try {
-      Thread.sleep(50000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    try { Thread.sleep(50000); } catch (InterruptedException e) {}
     return "This is an important message";
   }
 
