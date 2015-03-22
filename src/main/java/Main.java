@@ -25,25 +25,24 @@ public class Main extends HttpServlet {
     executor.execute(future);
 
     resp.addHeader("Transfer-Encoding", "chunked");
+    resp.addHeader("Content-Type", "text/html");
 
     while (!future.isDone()) {
       try { Thread.sleep(10000); } catch (InterruptedException e) {}
-      resp.getWriter().print("X");
+      resp.getWriter().print(" ");
       resp.getWriter().flush();
     }
 
     try {
       resp.getWriter().print(future.get());
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      resp.getWriter().print("<p>There was an error calling the service!</p>");
     }
   }
 
   protected String serviceThatIsSlow() {
     try { Thread.sleep(50000); } catch (InterruptedException e) {}
-    return "This is an important message";
+    return "<html><body><p>This is an important message</p></body></html>";
   }
 
   public static void main(String[] args) throws Exception{
