@@ -13,30 +13,41 @@ public class Main extends HttpServlet {
 
   private ExecutorService executor = Executors.newFixedThreadPool(10);
 
+  private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+  protected void doGet(HttpServletRequest req, final HttpServletResponse resp)
       throws ServletException, IOException {
 
-    FutureTask<String> future =
-        new FutureTask<String>(new Callable<String>() {
+    FutureTask<String> service =
+        new FutureTask<>(new Callable<String>() {
           public String call() {
             return serviceThatIsSlow();
           }});
-    executor.execute(future);
+    executor.execute(service);
+
+    ScheduledFuture chunks = scheduler.scheduleAtFixedRate(new Runnable() {
+        public void run() {
+          try {
+            resp.getWriter().print(" ");
+            resp.getWriter().flush();
+          } catch (IOException e) {
+            // do nothing
+          }
+        }
+      }, 10, 10, TimeUnit.SECONDS);
 
     resp.addHeader("Transfer-Encoding", "chunked");
     resp.addHeader("Content-Type", "text/html");
 
-    while (!future.isDone()) {
-      try { Thread.sleep(10000); } catch (InterruptedException e) {}
-      resp.getWriter().print(" ");
-      resp.getWriter().flush();
-    }
-
+    String responseString = "";
     try {
-      resp.getWriter().print(future.get());
+      responseString = service.get();
     } catch (Exception e) {
-      resp.getWriter().print("<p>There was an error calling the service!</p>");
+      responseString = "<p>There was an error calling the service!</p>";
+    } finally {
+      chunks.cancel(true);
+      resp.getWriter().print(responseString);
     }
   }
 
