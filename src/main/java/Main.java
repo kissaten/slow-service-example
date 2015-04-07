@@ -38,7 +38,7 @@ public class Main extends HttpServlet {
 
       @Override
       public void onStartAsync(AsyncEvent event) {
-        System.out.println("Async starting");
+
       }
 
       @Override
