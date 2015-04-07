@@ -6,16 +6,21 @@
   <groupId>com.example</groupId>
   <version>1.0-SNAPSHOT</version>
   <artifactId>slow-service</artifactId>
+
+  <properties>
+    <jetty.version>9.3.0.M2</jetty.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>9.2.10.v20150310</version>
+      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
     </dependency>
   </dependencies>
   <build>
