@@ -14,9 +14,15 @@ import java.util.concurrent.*;
 
 public class Main extends HttpServlet {
 
+  private ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
+
+  private ExecutorService executor = Executors.newFixedThreadPool(100);
+
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response)
       throws ServletException, IOException {
+
+    Long start = System.currentTimeMillis();
 
     response.addHeader("Transfer-Encoding", "chunked");
     response.addHeader("Content-Type", "text/html");
@@ -47,7 +53,7 @@ public class Main extends HttpServlet {
       }
     });
 
-    final ScheduledFuture chunkBlower = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+    final ScheduledFuture chunkBlower = scheduledExecutor.scheduleAtFixedRate(new Runnable() {
       public void run() {
         try {
           async.getResponse().getWriter().print(" ");
@@ -58,8 +64,9 @@ public class Main extends HttpServlet {
       }
     }, 15, 15, TimeUnit.SECONDS);
 
-    Executors.newSingleThreadExecutor().execute(new Runnable() {
+    executor.execute(new Runnable() {
       public void run() {
+        Long start = System.currentTimeMillis();
         String responseString = "";
         try {
           responseString = serviceThatIsSlow();
@@ -68,6 +75,7 @@ public class Main extends HttpServlet {
         } finally {
           chunkBlower.cancel(true);
           try {
+            response.getWriter().println("<p>Time spent async: " + (System.currentTimeMillis() - start) + "ms</p>");
             async.getResponse().getWriter().print(responseString);
             async.getResponse().getWriter().flush();
           } catch (IOException e) {
@@ -77,11 +85,14 @@ public class Main extends HttpServlet {
         }
       }
     });
+
+    response.getWriter().println("<p>Time spent blocking: " + (System.currentTimeMillis() - start) + "ms</p>");
+    response.flushBuffer();
   }
 
   protected String serviceThatIsSlow() {
     try { Thread.sleep(50000); } catch (InterruptedException e) { /* do nothing */ }
-    return "<html><body><p>This is an important message</p></body></html>";
+    return "<p>This is an important message</p>";
   }
 
   public static void main(String[] args) throws Exception{
