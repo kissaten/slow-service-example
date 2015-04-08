@@ -30,29 +30,6 @@ public class Main extends HttpServlet {
     final AsyncContext async = request.startAsync();
     async.setTimeout(90000);
 
-    async.addListener(new AsyncListener() {
-      @Override
-      public void onComplete(AsyncEvent event) throws IOException {
-        System.out.println("Async complete");
-      }
-
-      @Override
-      public void onError(AsyncEvent event) {
-        System.out.println("Async error");
-        System.out.println(event.getThrowable());
-      }
-
-      @Override
-      public void onStartAsync(AsyncEvent event) {
-
-      }
-
-      @Override
-      public void onTimeout(AsyncEvent event) {
-        System.out.println("Async timeout");
-      }
-    });
-
     final ScheduledFuture chunkBlower = scheduledExecutor.scheduleAtFixedRate(new Runnable() {
       public void run() {
         try {
